@@ -8,6 +8,8 @@ import Users from "../pages/Users";
 import Feedback from "../pages/Feedback";
 import Reports from "../pages/Reports";
 import NotFound from "../pages/NotFound";
+import NovaAvaliacao from "../pages/NovaAvaliacao";
+import MinhasAvaliacoes from "../pages/MinhasAvaliacoes";
 
 function AppRoutes() {
   return (
@@ -27,6 +29,11 @@ function AppRoutes() {
           <Route path="/feedback" element={<Feedback />} />
 
           <Route path="/reports" element={<Reports />} />
+          
+          {/* O path='' tem que estar da mesma forma que está no Sidebar.jsx */}
+          <Route path="/MinhasAvaliacoes" element={<MinhasAvaliacoes />} />
+
+          <Route path="/NovaAvaliacao" element={<NovaAvaliacao />} />
 
         </Route>
 
