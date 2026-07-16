@@ -1,4 +1,3 @@
-// 1. IMPORTAÇÕES (O que precisamos trazer de fora para esta página funcionar)
 import { useState } from 'react'; // Hook do React: permite criar variáveis que, quando mudam, atualizam a tela na hora.
 import { Calendar, Diamond, Save } from 'lucide-react'; // Ícones que vamos usar no visual.
 
@@ -6,7 +5,7 @@ export default function NovaAvaliacao() {
   
   // Uma lista (Array) comum de JavaScript. No futuro, isso virá do banco de dados.
   const colaboradoresPendentes = [
-    { id: 'JC', nome: 'Juliana Costa', cor: 'bg-emerald-500' },
+    { id: 'JC', nome: 'Juliana Costa Rezende', cor: 'bg-emerald-500' },
     { id: 'RS', nome: 'Rafael Souza', cor: 'bg-purple-500' },
   ];
 
@@ -50,10 +49,13 @@ export default function NovaAvaliacao() {
     }));
   };
 
+
+//   CONST ATUALIZARNOTA E ATUALIZARCOMENTARIO, TEM O MESMO PAPEL, MAS UM SALVA AS NOTAS E PASSA PRA FRENTE, O OUTRO FAZ ISSO COM OS COMENTARIOS
+
   
   // Olha para a variável 'respostas' e conta quantas já têm uma 'nota' preenchida.
   const criteriosRespondidos = Object.keys(respostas).filter(key => respostas[key]?.nota).length;
-  const progresso = (criteriosRespondidos / criterios.length) * 100;
+  const progresso = (criteriosRespondidos / criterios.length) * 100; //porcentagem dos criterios respondidos
 
 
   //codigo que vai pra tela
@@ -95,8 +97,9 @@ export default function NovaAvaliacao() {
         {/*  usei .map() para desenhar um cartão para cada item da lista 'criterios' */}
         {criterios.map((criterio) => (
           <div key={criterio.id} className="bg-[#131b2f] p-8 border border-slate-800">
-            <h2>{criterio.titulo}</h2>
-            <p>{criterio.desc}</p>
+            <h2 style={{fontSize:'24px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <Diamond/>{criterio.titulo}</h2>
+            <p style={{color:'grey'}}>{criterio.desc}</p>
 
             <div className="flex gap-4 mb-6">
               {notasDisponiveis.map((nota) => (
@@ -122,7 +125,7 @@ export default function NovaAvaliacao() {
             <textarea
               value={respostas[criterio.id]?.positivo || ''}
               onChange={(evento) => atualizarComentario(criterio.id, 'positivo', evento.target.value)}
-              placeholder="Comentário positivo..."
+              placeholder="Comentário positivo ou melhorias..."
               className="w-full bg-[#0b1120] text-slate-300 p-4"
             />
           </div>
