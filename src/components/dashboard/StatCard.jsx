@@ -1,32 +1,25 @@
-function StatCard({icon, title, value, description, color = "blue"}) {
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
-  const colors = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-green-50 text-green-600",
-    yellow: "bg-yellow-50 text-yellow-600",
-    red: "bg-red-50 text-red-600",
-  };
+const COLOR_MAP = {
+  blue: "bg-primary/10 text-primary",
+  green: "bg-chart-5/10 text-chart-5",
+  yellow: "bg-chart-4/10 text-chart-4",
+  red: "bg-destructive/10 text-destructive",
+};
 
+function StatCard({ icon, title, value, description, color = "blue" }) {
   return (
-    <div className=" bg-white rounded-2xl border shadow-sm p-6 hover:shadow-lg transition">
-
-      <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${colors[color]}`}>
-        {icon}
-      </div>
-
-      <h2 className="text-4xl font-bold text-slate-800 mt-5">
-        {value}
-      </h2>
-
-      <p className="text-lg font-semibold mt-2">
-        {title}
-      </p>
-
-      <p className="text-sm text-slate-500 mt-1">
-        {description}
-      </p>
-
-    </div>
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-4", COLOR_MAP[color])}>
+          {icon}
+        </div>
+        <p className="text-3xl font-bold text-foreground">{value}</p>
+        <p className="text-sm font-semibold text-foreground mt-1">{title}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+      </CardContent>
+    </Card>
   );
 }
 

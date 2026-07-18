@@ -1,55 +1,43 @@
-import { Bell, Moon } from "lucide-react";
+import { Bell, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/context/ThemeContext";
 
 function Header() {
+  const { theme, toggleTheme } = useTheme();
 
   return (
-
-    <header className=" h-20 bg-white border-b flex items-center justify-between px-8 shadow-sm">
+    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-8">
       {/* Título */}
       <div>
-        <h2 className="text-2xl font-bold text-slate-800">
-          Bem-vindo
-        </h2>
-
-        <p className="text-sm text-slate-500">
-          Sistema de Feedback 360°
-        </p>
-
+        <h2 className="text-xl font-semibold text-foreground">Bem-vindo</h2>
+        <p className="text-xs text-muted-foreground">Sistema de Feedback 360°</p>
       </div>
 
       {/* Ações */}
-      <div className="flex items-center gap-5">
-        <button className="p-2 rounded-full hover:bg-slate-100 transition">
-          <Bell 
-            size={22}
-            className="text-slate-600"
-          />
-        </button>
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" aria-label="Notificações">
+          <Bell size={18} />
+        </Button>
 
-        <button className="p-2 rounded-full hover:bg-slate-100 transition">
-          <Moon
-            size={22}
-            className="text-slate-600"
-          />
-        </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          aria-label="Alternar tema"
+        >
+          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+        </Button>
 
-        {/* Usuário */}
-        <div className="flex items-center gap-3 ml-3">
-          <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
+        {/* Avatar do usuário */}
+        <div className="flex items-center gap-3 ml-2 pl-4 border-l border-border">
+          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold select-none">
             P
           </div>
-
-          <div className="hidden md:block">
-            <span className=" text-xs text-slate-500">
-              Administrador
-            </span>
-
-          </div>
-
+          <span className="hidden md:block text-sm text-muted-foreground">
+            Administrador
+          </span>
         </div>
-
       </div>
-
     </header>
   );
 }

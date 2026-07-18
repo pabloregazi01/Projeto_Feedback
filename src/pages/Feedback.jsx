@@ -1,245 +1,259 @@
-import React, { useState } from 'react';
-import { Plus, Diamond, Circle, Target, X } from 'lucide-react';
+import { useState } from "react";
+import { Plus, Diamond, Target, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
-export default function PaginaEquipeGestor() {
-  
-  
-  // variaveis dos 4 primeiros cards
-  const resumoCards = {
-    mediaGeral: 4.2,
-    comparacao: "↑ 0.3 vs. ciclo anterior",
-    deficit: { nome: "Comunicação", media: 4.1 },
-    destaque: { iniciais: "RS", nome: "Rafael", nota: 4.6, cor: "bg-purple-500" },
-    atencao: { iniciais: "BT", nome: "Bianca", nota: 3.7, cor: "bg-pink-500" }
-  };
+// Dados mockados — futuramente virão do Supabase
+const RESUMO_CARDS = {
+  mediaGeral: 4.2,
+  comparacao: "↑ 0.3 vs. ciclo anterior",
+  deficit: { nome: "Comunicação", media: 4.1 },
+  destaque: { iniciais: "RS", nome: "Rafael", nota: 4.6 },
+  atencao: { iniciais: "BT", nome: "Bianca", nota: 3.7 },
+};
 
-  // desempenho medio por criterio
-  const desempenhoCriterios = [
-    { id: 1, nome: "Qualidade das Entregas", nota: 3.3, icone: Diamond },
-    { id: 2, nome: "Colaboração", nota: 4.2, icone: Diamond },
-    { id: 3, nome: "Postura Profissional", nota: 1.1, icone: Diamond },
-    { id: 4, nome: "Comunicação", nota: 4.1, icone: Diamond }
-  ];
+const DESEMPENHO_CRITERIOS = [
+  { id: 1, nome: "Qualidade das Entregas", nota: 3.3 },
+  { id: 2, nome: "Colaboração", nota: 4.2 },
+  { id: 3, nome: "Postura Profissional", nota: 1.1 },
+  { id: 4, nome: "Comunicação", nota: 4.1 },
+];
 
-  //lista dos colaboradores da equipe no ultimo card
-  const [membrosEquipe, setMembrosEquipe] = useState([
-    { id: 1, iniciais: "JC", nome: "Juliana Costa", cargo: "Designer UX", cor: "bg-emerald-500", notas: [3.8, 4.2, 4.5, 3.9], media: 4.1 },
-    { id: 2, iniciais: "RS", nome: "Rafael Souza", cargo: "Product Manager", cor: "bg-purple-500", notas: [4.7, 4.6, 4.4, 4.8], media: 4.6 },
-    { id: 3, iniciais: "CF", nome: "Carlos Ferreira", cargo: "Desenvolvedor Sênior", cor: "bg-blue-500", notas: [4.2, 4.5, 4.0, 4.1], media: 4.2 },
-    { id: 4, iniciais: "ML", nome: "Mariana Lima", cargo: "Analista de Dados", cor: "bg-yellow-500", notas: [4.0, 2, 4.3, 4.2], media: 3.6 },
-    { id: 5, iniciais: "BT", nome: "Bianca Torres", cargo: "Desenvolvedora Frontend", cor: "bg-pink-500", notas: [3.4, 3.8, 4.1, 3], media: 3.5 },
-    { id: 6, iniciais: "PA", nome: "Pedro Alves", cargo: "Engenheiro de Software", cor: "bg-blue-400", notas: [4.3, 4.1, 4.6, 4.2], media: 4.3 }
-  ]);
+const MEMBROS_INICIAIS = [
+  { id: 1, iniciais: "JC", nome: "Juliana Costa", cargo: "Designer UX", notas: [3.8, 4.2, 4.5, 3.9], media: 4.1 },
+  { id: 2, iniciais: "RS", nome: "Rafael Souza", cargo: "Product Manager", notas: [4.7, 4.6, 4.4, 4.8], media: 4.6 },
+  { id: 3, iniciais: "CF", nome: "Carlos Ferreira", cargo: "Desenvolvedor Sênior", notas: [4.2, 4.5, 4.0, 4.1], media: 4.2 },
+  { id: 4, iniciais: "ML", nome: "Mariana Lima", cargo: "Analista de Dados", notas: [4.0, 2, 4.3, 4.2], media: 3.6 },
+  { id: 5, iniciais: "BT", nome: "Bianca Torres", cargo: "Desenvolvedora Frontend", notas: [3.4, 3.8, 4.1, 3], media: 3.5 },
+  { id: 6, iniciais: "PA", nome: "Pedro Alves", cargo: "Engenheiro de Software", notas: [4.3, 4.1, 4.6, 4.2], media: 4.3 },
+];
 
-  // funcao que define a cor da nota de acordo com a nota (verde, amarela, vermelha)
-  const getCorNota = (nota) => {
-    if (nota >= 4) return "text-emerald-400";
-    if (nota >= 3.5) return "text-amber-500";
-    if (nota < 3.5) return "text-red-500";
-  };
+function getNotaVariant(nota) {
+  if (nota >= 4) return "text-chart-5";
+  if (nota >= 3.5) return "text-chart-4";
+  return "text-destructive";
+}
 
+export default function Feedback() {
+  const [membros, setMembros] = useState(MEMBROS_INICIAIS);
 
-  
+  function removerMembro(id) {
+    setMembros((prev) => prev.filter((m) => m.id !== id));
+  }
 
   return (
-    <div className="min-h-screen bg-[#0b1120] p-8 font-sans">
-      
-
-      <div className="flex items-center justify-between mb-10">
+    <div className="space-y-8">
+      {/* Cabeçalho */}
+      <div className="flex items-start justify-between">
         <div>
-          <p className="text-blue-500 text-sm font-semibold tracking-wider mb-2">CICLO Q3 — JULHO 2026</p>
-          <h1 className="text-3xl font-serif text-white mb-2">Equipe</h1>
-
-          {/* faz a leitura da quantidade (lenght) de colaboradores atraves do array de colaboradores  */}
-          <p className="text-slate-400">{membrosEquipe.length} colaboradores cadastrados</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">
+            Ciclo Q3 — Julho 2026
+          </p>
+          <h1 className="text-2xl font-bold text-foreground">Equipe</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {membros.length} colaboradores cadastrados
+          </p>
         </div>
-        <button className="flex items-center gap-2 bg-teal-400 hover:bg-teal-300 text-teal-950 font-bold px-6 py-3 rounded-lg transition-colors">
-          <Plus className="w-5 h-5" />
+        <Button>
+          <Plus size={16} />
           Adicionar Colaborador
-        </button>
+        </Button>
       </div>
 
-      {/* --- CARDS DE RESUMO  --- */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        {/* Média Geral */}
-        <div className="bg-slate-800/40 border-t-2 border-t-blue-500 border border-slate-700/50 rounded-xl p-6 shadow-lg">
-          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Média Geral</p>
+      {/* Cards de Resumo */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <Card className="border-t-2 border-t-primary">
+          <CardContent className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              Média Geral
+            </p>
+            <p className="text-4xl font-bold text-primary">{RESUMO_CARDS.mediaGeral}</p>
+            <p className="text-xs text-muted-foreground mt-1">{RESUMO_CARDS.comparacao}</p>
+          </CardContent>
+        </Card>
 
-          {/* resumoCards é o nome do array, ai vc tras cada ponto do array, usando (nome do array).(ponto que vc quer) */}
-          <p className="text-5xl font-bold text-blue-500 mb-2">{resumoCards.mediaGeral}</p>
-          <p className="text-slate-500 text-sm">{resumoCards.comparacao}</p>
-        </div>
+        <Card className="border-t-2 border-t-destructive">
+          <CardContent className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              Déficit da Equipe
+            </p>
+            <p className="text-xl font-semibold text-destructive">{RESUMO_CARDS.deficit.nome}</p>
+            <p className="text-xs text-muted-foreground mt-1">média {RESUMO_CARDS.deficit.media}</p>
+          </CardContent>
+        </Card>
 
-        {/* Déficit da Equipe */}
-        <div className="bg-slate-800/40 border-t-2 border-t-red-400 border border-slate-700/50 rounded-xl p-6 shadow-lg">
-          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Déficit da Equipe</p>
-
-          {/* resumoCards é o nome do array, ai vc tras cada ponto do array, usando (nome do array).(ponto que vc quer) */}
-          <p className="text-2xl font-serif text-red-400 mb-4">{resumoCards.deficit.nome}</p>
-          <p className="text-slate-500 text-sm">média {resumoCards.deficit.media}</p>
-        </div>
-
-        {/* Destaque */}
-        <div className="bg-slate-800/40 border-t-2 border-t-emerald-400 border border-slate-700/50 rounded-xl p-6 shadow-lg relative overflow-hidden">
-          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Destaque</p>
-          <div className="flex items-center gap-3 mb-4">
-            
-            {/* resumoCards é o nome do array, ai vc tras cada ponto do array, usando (nome do array).(ponto que vc quer) */}
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${resumoCards.destaque.cor}`}>
-              {resumoCards.destaque.iniciais}
+        <Card className="border-t-2 border-t-chart-5">
+          <CardContent className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              Destaque
+            </p>
+            <div className="flex items-center gap-2 mb-3">
+              <Avatar className="w-7 h-7">
+                <AvatarFallback className="text-xs bg-chart-5/20 text-chart-5">
+                  {RESUMO_CARDS.destaque.iniciais}
+                </AvatarFallback>
+              </Avatar>
+              <p className="text-sm font-medium text-foreground">{RESUMO_CARDS.destaque.nome}</p>
             </div>
-            <p className="text-white font-medium">{resumoCards.destaque.nome}</p>
-          </div>
-          <p className="text-4xl font-bold text-emerald-400">{resumoCards.destaque.nota}</p>
-        </div>
+            <p className="text-4xl font-bold text-chart-5">{RESUMO_CARDS.destaque.nota}</p>
+          </CardContent>
+        </Card>
 
-        {/* Requer Atenção */}
-        <div className="bg-slate-800/40 border-t-2 border-t-amber-400 border border-slate-700/50 rounded-xl p-6 shadow-lg relative overflow-hidden">
-          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Requer Atenção</p>
-          <div className="flex items-center gap-3 mb-4">
-
-            {/* resumoCards é o nome do array, ai vc tras cada ponto do array, usando (nome do array).(ponto que vc quer) */}
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${resumoCards.atencao.cor}`}>
-              {resumoCards.atencao.iniciais}
+        <Card className="border-t-2 border-t-chart-4">
+          <CardContent className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              Requer Atenção
+            </p>
+            <div className="flex items-center gap-2 mb-3">
+              <Avatar className="w-7 h-7">
+                <AvatarFallback className="text-xs bg-chart-4/20 text-chart-4">
+                  {RESUMO_CARDS.atencao.iniciais}
+                </AvatarFallback>
+              </Avatar>
+              <p className="text-sm font-medium text-foreground">{RESUMO_CARDS.atencao.nome}</p>
             </div>
-            <p className="text-white font-medium">{resumoCards.atencao.nome}</p>
-          </div>
-          <p className="text-4xl font-bold text-amber-400">{resumoCards.atencao.nota}</p>
-        </div>
+            <p className="text-4xl font-bold text-chart-4">{RESUMO_CARDS.atencao.nota}</p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* --- MEIO DA PÁGINA (GRÁFICOS E PONTOS) --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        
+      {/* Meio: Critérios + Pontos de Melhoria */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Desempenho por Critério */}
-        {/* tive que buscar no claude modelo de como faria */}
-        <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-8 shadow-lg">
-          <h2 className="text-2xl font-serif text-white mb-8">Desempenho por Critério</h2>
-          <div className="flex flex-col gap-6">
-            {desempenhoCriterios.map((criterio) => {
-              const Icone = criterio.icone;
-              // porcentagem da barra (ex: 4.3 de 5 = 86%)
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Desempenho por Critério</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-5">
+            {DESEMPENHO_CRITERIOS.map((criterio) => {
               const progresso = (criterio.nota / 5) * 100;
-              
               return (
                 <div key={criterio.id}>
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
-                      <Icone className="w-4 h-4 text-blue-500" />
-                      <span className="text-slate-200">{criterio.nome}</span>
+                      <Diamond className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-sm text-foreground">{criterio.nome}</span>
                     </div>
-                    <span className="text-blue-400 font-bold">{criterio.nota}</span>
+                    <span className="text-sm font-bold text-primary">{criterio.nota}</span>
                   </div>
-                  {/* Fundo da barra */}
-                  <div className="h-1.5 w-full bg-slate-700/50 rounded-full overflow-hidden">
-                    {/* Preenchimento da barra */}
-                    <div 
-                      className={`h-full bg-blue-500 rounded-full transition-all duration-1000
-                        ${progresso >= 75 ? 'bg-emerald-400' : progresso >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
-                  
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-700",
+                        progresso >= 75 ? "bg-chart-5" : progresso >= 50 ? "bg-chart-4" : "bg-destructive"
+                      )}
                       style={{ width: `${progresso}%` }}
-                    ></div>
-
+                    />
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-
+          </CardContent>
+        </Card>
 
         {/* Pontos a Melhorar */}
-        <div className="bg-transparent rounded-xl flex flex-col gap-4">
-          <h2 className="text-2xl font-serif text-white mb-2">Pontos a Melhorar</h2>
-          
-          {/* Card Déficit */}
-          <div className="bg-slate-800/30 border border-amber-500/30 rounded-xl p-6">
-            <p className="text-amber-500 text-xs font-semibold uppercase tracking-wider mb-3">Critério com Maior Déficit</p>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Diamond className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-bold text-white">Comunicação</h3>
+        <div className="flex flex-col gap-4">
+          <h2 className="text-base font-semibold text-foreground">Pontos a Melhorar</h2>
+
+          <Card className="border-chart-4/30">
+            <CardContent className="p-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-chart-4 mb-2">
+                Critério com Maior Déficit
+              </p>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <Diamond className="w-4 h-4 text-chart-4" />
+                  <h3 className="text-sm font-bold text-foreground">Comunicação</h3>
+                </div>
+                <span className="text-sm font-bold text-chart-4">4.1</span>
               </div>
-              <span className="text-amber-500 font-bold">4.1</span>
-            </div>
-            <p className="text-slate-400 text-sm mt-3">Recomenda-se sessões de feedback individual e workshops focados nesta competência.</p>
-          </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Recomenda-se sessões de feedback individual e workshops focados nesta competência.
+              </p>
+            </CardContent>
+          </Card>
 
-          {/* Card Ponto Forte */}
-          <div className="bg-slate-800/30 border border-blue-500/30 rounded-xl p-6">
-            <p className="text-blue-500 text-xs font-semibold uppercase tracking-wider mb-3">Ponto Forte da Equipe</p>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-blue-500" />
-                <h3 className="text-lg font-bold text-white">Qualidade das Entregas</h3>
+          <Card className="border-primary/30">
+            <CardContent className="p-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
+                Ponto Forte da Equipe
+              </p>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-bold text-foreground">Qualidade das Entregas</h3>
+                </div>
+                <span className="text-sm font-bold text-primary">4.3</span>
               </div>
-              <span className="text-blue-500 font-bold">4.3</span>
-            </div>
-            <p className="text-slate-400 text-sm mt-3">Utilize esses colaboradores como referência em mentorias internas.</p>
-          </div>
-
-          {/* Card Ação Recomendada */}
-          <div className="bg-slate-800/30 border border-pink-500/20 rounded-xl p-6">
-            <p className="text-pink-400 text-xs font-semibold uppercase tracking-wider mb-3">Ação Recomendada</p>
-            <p className="text-slate-400 text-sm">Equipe dentro dos parâmetros. Manter ciclos mensais de avaliação.</p>
-          </div>
-
+              <p className="text-xs text-muted-foreground mt-2">
+                Utilize esses colaboradores como referência em mentorias internas.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      {/* ---  MEMBROS DA EQUIPE --- */}
-      <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-8 shadow-lg">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-serif text-white">Membros da Equipe</h2>
-          <span className="text-slate-500 text-sm">{membrosEquipe.length} cadastrados</span>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          {membrosEquipe.map((membro, index) => (
-            <div key={membro.id} className="flex items-center justify-between p-4 hover:bg-slate-800/50 rounded-lg transition-colors group">
-              
-              {/* Lado Esquerdo: Index, Avatar, Nome e Cargo */}
-              <div className="flex items-center gap-6 w-1/3">
-                <span className="text-slate-500 w-4">{index + 1}</span>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shrink-0 ${membro.cor}`}>
-                  {membro.iniciais}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-white font-semibold">{membro.nome}</span>
-                  <span className="text-slate-400 text-sm">{membro.cargo}</span>
+      {/* Membros da Equipe */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Membros da Equipe</CardTitle>
+          <span className="text-xs text-muted-foreground">{membros.length} cadastrados</span>
+        </CardHeader>
+        <CardContent className="flex flex-col divide-y divide-border">
+          {membros.map((membro, index) => (
+            <div
+              key={membro.id}
+              className="flex items-center justify-between py-3 hover:bg-muted/40 px-2 rounded-lg transition-colors"
+            >
+              {/* Esquerda: índice + avatar + info */}
+              <div className="flex items-center gap-4 w-1/2">
+                <span className="text-xs text-muted-foreground w-4 shrink-0">{index + 1}</span>
+                <Avatar className="w-9 h-9 shrink-0">
+                  <AvatarFallback className="text-xs font-bold">
+                    {membro.iniciais}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{membro.nome}</p>
+                  <p className="text-xs text-muted-foreground">{membro.cargo}</p>
                 </div>
               </div>
 
-              {/* Lado Direito: Micro-notas, Nota Final e Botão de Excluir */}
-              <div className="flex items-center gap-8">
-                
-                {/* Micro-notas dos critérios (com pequenos ícones) */}
-                <div className="flex items-center gap-4">
+              {/* Direita: micro-notas + média + remover */}
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3">
                   {membro.notas.map((nota, i) => (
-                     <div key={i} className="flex flex-col items-center gap-1">
-                        <Diamond className="w-3 h-3 text-slate-600" />
-                        <span className={`text-sm font-medium ${getCorNota(nota)}`}>{nota}</span>
-                     </div>
+                    <div key={i} className="flex flex-col items-center gap-0.5">
+                      <Diamond className="w-2.5 h-2.5 text-muted-foreground/40" />
+                      <span className={cn("text-xs font-medium", getNotaVariant(nota))}>{nota}</span>
+                    </div>
                   ))}
                 </div>
 
-                {/* Nota Média Final */}
-                <div className={`text-xl font-bold w-16 text-center ${getCorNota(membro.media)}`}>
+                <Badge
+                  variant="outline"
+                  className={cn("w-12 justify-center font-bold", getNotaVariant(membro.media))}
+                >
                   {membro.media}
-                </div>
+                </Badge>
 
-                {/* Botão de Remover (Aparece mais forte no hover) */}
-                <button className="flex items-center justify-center w-4 h-4 rounded-md bg-transparent text-slate-500 hover:text-red-400 hover:bg-slate-700/50 transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
-
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => removerMembro(membro.id)}
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  aria-label={`Remover ${membro.nome}`}
+                >
+                  <X size={14} />
+                </Button>
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
+        </CardContent>
+      </Card>
     </div>
   );
 }
