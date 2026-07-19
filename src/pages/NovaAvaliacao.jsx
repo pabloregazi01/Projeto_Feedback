@@ -3,7 +3,6 @@ import { Diamond, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 // Dados mockados — futuramente virão do Supabase
