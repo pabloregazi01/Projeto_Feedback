@@ -8,10 +8,13 @@ returns public.papel_perfil
 language sql
 security definer
 stable
-set search_path = public
+set search_path = ''
 as $$
-  select papel from public.perfis where id = auth.uid();
+  select p.papel from public.perfis as p where p.id = (select auth.uid());
 $$;
+
+revoke all on function public.meu_papel() from public;
+grant execute on function public.meu_papel() to authenticated;
 
 -- Função auxiliar: ids dos subordinados diretos do usuário logado.
 create or replace function public.meus_subordinados()
@@ -19,10 +22,13 @@ returns setof uuid
 language sql
 security definer
 stable
-set search_path = public
+set search_path = ''
 as $$
-  select id from public.perfis where gestor_id = auth.uid();
+  select p.id from public.perfis as p where p.gestor_id = (select auth.uid());
 $$;
+
+revoke all on function public.meus_subordinados() from public;
+grant execute on function public.meus_subordinados() to authenticated;
 
 alter table public.perfis enable row level security;
 alter table public.times enable row level security;
@@ -34,22 +40,15 @@ alter table public.atribuicoes_avaliacao enable row level security;
 alter table public.respostas_avaliacao enable row level security;
 alter table public.feedback_aberto_avaliacao enable row level security;
 
--- perfis: todo autenticado lê; admin/rh escrevem qualquer perfil; usuário edita o próprio.
-create policy "perfis_select_authenticated" on public.perfis
-  for select to authenticated using (true);
-
-create policy "perfis_update_admin_rh" on public.perfis
-  for update to authenticated
-  using (public.meu_papel() in ('admin', 'rh'));
-
-create policy "perfis_update_self" on public.perfis
-  for update to authenticated
-  using (id = auth.uid())
-  with check (id = auth.uid());
-
-create policy "perfis_insert_admin_rh" on public.perfis
-  for insert to authenticated
-  with check (public.meu_papel() in ('admin', 'rh'));
+-- perfis: colaborador lê somente o próprio perfil; admin/rh leem o diretório.
+-- O MVP não permite escrita direta do frontend em perfis. Convites e atribuição
+-- de papel passam pela Edge Function com credencial administrativa.
+create policy "perfis_select_self_or_admin_rh" on public.perfis
+  for select to authenticated
+  using (
+    id = (select auth.uid())
+    or (select public.meu_papel()) in ('admin', 'rh')
+  );
 
 -- times / membros_time: leitura geral; escrita só admin/rh.
 create policy "times_select_authenticated" on public.times

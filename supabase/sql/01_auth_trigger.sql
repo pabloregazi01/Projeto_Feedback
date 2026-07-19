@@ -6,13 +6,17 @@ create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 begin
   insert into public.perfis (id, nome_completo, email)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data ->> 'nome_completo', new.email),
+    coalesce(
+      nullif(trim(new.raw_user_meta_data ->> 'nome_completo'), ''),
+      nullif(split_part(coalesce(new.email, ''), '@', 1), ''),
+      'Novo usuário'
+    ),
     new.email
   );
   return new;
