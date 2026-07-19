@@ -1,45 +1,61 @@
-import { Bell, Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/context/ThemeContext";
+import { Link, useLocation } from "react-router-dom"
 
-function Header() {
-  const { theme, toggleTheme } = useTheme();
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
-  return (
-    <header className="h-16 bg-card border-b border-border flex items-center justify-between px-8">
-      {/* Título */}
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">Bem-vindo</h2>
-        <p className="text-xs text-muted-foreground">Sistema de Feedback 360°</p>
-      </div>
-
-      {/* Ações */}
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" aria-label="Notificações">
-          <Bell size={18} />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          aria-label="Alternar tema"
-        >
-          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        </Button>
-
-        {/* Avatar do usuário */}
-        <div className="flex items-center gap-3 ml-2 pl-4 border-l border-border">
-          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold select-none">
-            P
-          </div>
-          <span className="hidden md:block text-sm text-muted-foreground">
-            Administrador
-          </span>
-        </div>
-      </div>
-    </header>
-  );
+const ROUTE_LABELS = {
+  "/dashboard": "Dashboard",
+  "/users": "Usuários",
+  "/feedback": "Feedbacks",
+  "/reports": "Relatórios",
+  "/novaavaliacao": "Nova avaliação",
+  "/minhasavaliacoes": "Minhas avaliações",
 }
 
-export default Header;
+function Header() {
+  const { pathname } = useLocation()
+  const normalizedPath = pathname.toLowerCase()
+  const pageTitle = ROUTE_LABELS[normalizedPath] || "Página atual"
+  const showBreadcrumb = normalizedPath !== "/dashboard"
+
+  return (
+    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+      <div className="flex min-w-0 items-center gap-2 px-4">
+        <SidebarTrigger className="-ml-1" aria-label="Alternar menu lateral" />
+        {showBreadcrumb && (
+          <>
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-vertical:h-4 data-vertical:self-center"
+            />
+            <Breadcrumb>
+              <BreadcrumbList className="flex-nowrap">
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink render={<Link to="/dashboard" />}>
+                    Página Inicial
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="truncate font-medium">
+                    {pageTitle}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </>
+        )}
+      </div>
+    </header>
+  )
+}
+
+export default Header
