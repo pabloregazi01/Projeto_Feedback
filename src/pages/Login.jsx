@@ -1,21 +1,53 @@
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { loginSchema } from "@/lib/validationSchemas";
 
 function Login() {
-  const [values, setValues] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
+  const { login, session, profile, loading, error: authError } = useAuth();
+  const [submitError, setSubmitError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
-  function handleChange(e) {
-    setValues((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
+  useEffect(() => {
+    if (!loading && session && profile) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [loading, navigate, profile, session]);
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    // TODO: integrar com Supabase auth + validação Zod
-    toast.info("Autenticação será integrada com Supabase.");
+  async function onSubmit(values) {
+    setSubmitError("");
+
+    try {
+      await login(values);
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      const isProfileError = error.message?.includes("perfil") || error.message?.includes("inativa");
+      setSubmitError(
+        isProfileError
+          ? error.message
+          : "E-mail ou senha inválidos. Verifique os dados e tente novamente."
+      );
+    }
   }
 
   return (
@@ -27,33 +59,49 @@ function Login() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Usuário</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
-                name="email"
-                type="text"
-                placeholder="Digite seu usuário"
-                value={values.email}
-                onChange={handleChange}
+                type="email"
+                autoComplete="email"
+                placeholder="voce@empresa.com"
+                aria-invalid={Boolean(errors.email)}
+                {...register("email")}
               />
+              {errors.email && (
+                <p className="text-xs text-destructive" role="alert">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">Senha</Label>
               <Input
                 id="password"
-                name="password"
                 type="password"
+                autoComplete="current-password"
                 placeholder="Digite sua senha"
-                value={values.password}
-                onChange={handleChange}
+                aria-invalid={Boolean(errors.password)}
+                {...register("password")}
               />
+              {errors.password && (
+                <p className="text-xs text-destructive" role="alert">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
-            <Button type="submit" className="w-full mt-1">
-              Entrar
+            {(submitError || authError) && (
+              <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
+                {submitError || authError}
+              </div>
+            )}
+
+            <Button type="submit" className="w-full mt-1" disabled={isSubmitting || loading}>
+              {isSubmitting ? "Entrando..." : "Entrar"}
             </Button>
           </form>
         </CardContent>
