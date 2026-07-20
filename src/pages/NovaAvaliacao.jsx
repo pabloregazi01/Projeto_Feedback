@@ -1,5 +1,51 @@
+<<<<<<< Updated upstream
 import { useState } from 'react'; // Hook do React: permite criar variáveis que, quando mudam, atualizam a tela na hora.
 import { Calendar, Diamond, Save } from 'lucide-react'; // Ícones que vamos usar no visual.
+=======
+import { useState } from "react";
+import { Diamond, Save } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+
+
+// Dados mockados — futuramente virão do Supabase
+const COLABORADORES_PENDENTES = [
+  { id: "JC", nome: "Juliana Costa Rezende" },
+  { id: "RS", nome: "Rafael Souza" },   
+];
+
+const CRITERIOS = [
+  {
+    id: "comunicacao",
+    titulo: "Comunicação",
+    desc: "Clareza, objetividade e assertividade na troca de informações com a equipe.",
+  },
+  {
+    id: "colaboracao",
+    titulo: "Colaboração",
+    desc: "Disponibilidade para apoiar colegas, trabalho em equipe e espírito colaborativo.",
+  },
+  {
+    id: "qualidade-entrega",
+    titulo: "Qualidade das Entregas",
+    desc: "Precisão, atenção a detalhes e nível de excelência nos resultados entregues.",
+  },
+  {
+    id: "postura-profissional",
+    titulo: "Postura Profissional",
+    desc: "Comprometimento, ética, proatividade e resiliência em situações de pressão.",
+  },
+  {
+    id: "qualidade-tecnica",
+    titulo: "Qualidade Técnica",
+    desc: "Domínio de ferramentas, aplicação de boas práticas e eficiência na resolução de problemas.",
+  },
+];
+
+const NOTAS = [1, 2, 3, 4, 5];
+>>>>>>> Stashed changes
 
 export default function NovaAvaliacao() {
   
