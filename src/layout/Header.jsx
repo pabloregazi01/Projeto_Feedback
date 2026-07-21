@@ -16,8 +16,8 @@ const ROUTE_LABELS = {
   "/users": "Usuários",
   "/feedback": "Feedbacks",
   "/reports": "Relatórios",
-  "/novaavaliacao": "Nova avaliação",
-  "/minhasavaliacoes": "Minhas avaliações",
+  "/nova-avaliacao": "Nova avaliação",
+  "/minhas-avaliacoes": "Meus resultados",
 }
 
 function Header() {

@@ -1,189 +1,35 @@
-import { useState } from "react";
-import { ChevronDown, ChevronUp, MessageSquare, Diamond } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useCallback, useEffect, useState } from "react";
+import { ChevronDown, ChevronUp, MessageSquare, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatAverage, getClosedResult, listClosedResults } from "@/services/resultsService";
 
-// Dados mockados — futuramente virão do Supabase
-const RESUMO = {
-  totalAvaliacoes: 6,
-  mediaGeral: 4.2,
-  tendencia: "+0.4",
-};
-
-const AVALIACOES = [
-  {
-    id: 1,
-    titulo: "Avaliação Anônima #1",
-    data: "10 Julho 2026",
-    detalhes: [
-      {
-        criterio: "Comunicação",
-        nota: 5,
-        comentario: "Sempre muito claro e objetivo nas passagens de bastão.",
-        melhoria: "Nenhum ponto de melhoria identificado.",
-      },
-      {
-        criterio: "Colaboração",
-        nota: 4,
-        comentario: "Ótimo trabalho em equipe durante o último sprint.",
-        melhoria: "Poderia participar mais ativamente das sessões de brainstorming.",
-      },
-    ],
-  },
-  {
-    id: 2,
-    titulo: "Avaliação Anônima #2",
-    data: "12 Julho 2026",
-    detalhes: [
-      {
-        criterio: "Comunicação",
-        nota: 4,
-        comentario: "Boa assertividade nas reuniões diárias.",
-        melhoria: "Poderia documentar melhor as decisões técnicas.",
-      },
-    ],
-  },
-];
-
-function getNotaVariant(nota) {
-  if (nota >= 4) return "default";
-  if (nota >= 3) return "secondary";
-  return "destructive";
+function formatPeriod(cycle) {
+  const fmt = new Intl.DateTimeFormat("pt-BR");
+  return `${fmt.format(new Date(`${cycle.dataInicio}T12:00:00`))} – ${fmt.format(new Date(cycle.dataLimite))}`;
 }
 
 export default function MinhasAvaliacoes() {
-  const [avaliacaoAberta, setAvaliacaoAberta] = useState(null);
+  const [cycles, setCycles] = useState([]);
+  const [opened, setOpened] = useState(null);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function alternarAvaliacao(id) {
-    setAvaliacaoAberta((prev) => (prev === id ? null : id));
-  }
+  const load = useCallback(async () => { setLoading(true); setError(""); try { setCycles(await listClosedResults()); } catch (err) { setError(err.message); } finally { setLoading(false); } }, []);
+  useEffect(() => { load(); }, [load]);
 
-  return (
-    <div className="space-y-8">
-      {/* Cabeçalho */}
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">
-          Ciclo 3 — Junho 2026
-        </p>
-        <h1 className="text-2xl font-bold text-foreground">Minhas Avaliações</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Avaliações que seus colegas fizeram sobre você. Os avaliadores são anônimos.
-        </p>
-      </div>
+  const toggle = async (id) => {
+    if (opened === id) { setOpened(null); setResult(null); return; }
+    setOpened(id); setResult(null); setDetailLoading(true); setError("");
+    try { setResult(await getClosedResult(id)); } catch (err) { setError(err.message); }
+    finally { setDetailLoading(false); }
+  };
 
-      {/* Painel de Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Avaliações recebidas
-            </p>
-            <p className="text-3xl font-bold text-primary">{RESUMO.totalAvaliacoes}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Média Geral
-            </p>
-            <p className="text-3xl font-bold text-chart-5">{RESUMO.mediaGeral}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Tendência
-            </p>
-            <p className="text-3xl font-bold text-chart-5">{RESUMO.tendencia}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Histórico Detalhado */}
-      <div>
-        <h2 className="text-base font-semibold text-foreground mb-4">Histórico Detalhado</h2>
-
-        {AVALIACOES.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <MessageSquare className="w-10 h-10 text-muted-foreground/40 mb-4" />
-              <p className="text-sm text-muted-foreground text-center">
-                Nenhuma avaliação recebida ainda neste ciclo.
-                <br />
-                As avaliações aparecerão aqui quando seus colegas as enviarem.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {AVALIACOES.map((avaliacao) => {
-              const isAberta = avaliacaoAberta === avaliacao.id;
-              return (
-                <div key={avaliacao.id}>
-                  <Button
-                    variant="default"
-                    className="w-full justify-between h-auto py-4 px-5"
-                    onClick={() => alternarAvaliacao(avaliacao.id)}
-                  >
-                    <span className="font-semibold">
-                      {avaliacao.titulo}{" "}
-                      <span className="text-primary-foreground/70 text-sm font-normal ml-1">
-                        ({avaliacao.data})
-                      </span>
-                    </span>
-                    {isAberta ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </Button>
-
-                  {isAberta && (
-                    <Card className="rounded-t-none border-t-0 -mt-1">
-                      <CardContent className="p-5 flex flex-col gap-5">
-                        {avaliacao.detalhes.map((item, index) => (
-                          <div key={index}>
-                            {index > 0 && <Separator className="mb-5" />}
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <Diamond className="w-4 h-4 text-primary" />
-                                <h3 className="text-sm font-bold text-foreground">
-                                  {item.criterio}
-                                </h3>
-                              </div>
-                              <Badge variant={getNotaVariant(item.nota)}>Nota: {item.nota}</Badge>
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                                  Comentário Positivo
-                                </p>
-                                <p className="text-sm text-foreground bg-muted/50 p-3 rounded-lg">
-                                  {item.comentario}
-                                </p>
-                              </div>
-
-                              {item.melhoria && (
-                                <div>
-                                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                                    Pontos a Melhorar
-                                  </p>
-                                  <p className="text-sm text-foreground bg-muted/50 p-3 rounded-lg">
-                                    {item.melhoria}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return <div className="mx-auto max-w-5xl space-y-6 pb-12">
+    <div><h1 className="text-2xl font-bold">Meus resultados</h1><p className="mt-1 text-sm text-muted-foreground">Consulte os ciclos encerrados e seus feedbacks anônimos.</p></div>
+    {error && <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive" role="alert"><span>{error}</span><Button size="sm" variant="outline" onClick={load}><RefreshCcw size={14}/> Tentar novamente</Button></div>}
+    {loading ? <div className="py-16 text-center text-sm text-muted-foreground" role="status">Carregando resultados...</div> : cycles.length === 0 ? <Card><CardContent className="flex flex-col items-center py-16 text-center"><MessageSquare className="mb-3 h-10 w-10 text-muted-foreground"/><p className="font-medium">Nenhum resultado disponível</p><p className="text-sm text-muted-foreground">Seus resultados aparecerão aqui quando um ciclo for encerrado.</p></CardContent></Card> : <div className="space-y-3">{cycles.map((cycle) => <Card key={cycle.id}><button className="flex w-full items-center justify-between gap-4 rounded-xl p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => toggle(cycle.id)} aria-expanded={opened === cycle.id}><span><strong className="block">{cycle.nome}</strong><span className="text-sm text-muted-foreground">{formatPeriod(cycle)}</span></span>{opened === cycle.id ? <ChevronUp/> : <ChevronDown/>}</button>{opened === cycle.id && <CardContent className="border-t pt-5">{detailLoading ? <p className="py-8 text-center text-sm text-muted-foreground">Carregando relatório...</p> : result && <div className="space-y-6"><div className="grid gap-4 sm:grid-cols-2"><Card><CardHeader><CardTitle className="text-sm">Como você se avaliou</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-primary">{formatAverage(result.mediaAutoavaliacao)}</p></CardContent></Card><Card><CardHeader><CardTitle className="text-sm">Média de como avaliaram você</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-primary">{formatAverage(result.mediaExterna)}</p></CardContent></Card></div><section aria-labelledby={`feedback-${cycle.id}`}><h2 id={`feedback-${cycle.id}`} className="mb-3 font-semibold">Contribuições anônimas</h2>{result.feedbacks.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum feedback textual foi enviado.</p> : <div className="grid gap-3 md:grid-cols-2">{result.feedbacks.map((feedback, index) => <article key={index} className="rounded-lg border bg-muted/20 p-4"><div className="mb-3 flex items-center gap-2 font-medium"><MessageSquare className="h-4 w-4 text-primary"/> Feedback anônimo</div>{feedback.pontosFortes && <div className="mb-3"><h3 className="text-xs font-bold uppercase text-muted-foreground">Pontos fortes</h3><p className="mt-1 whitespace-pre-wrap text-sm">{feedback.pontosFortes}</p></div>}{feedback.pontosMelhoria && <div><h3 className="text-xs font-bold uppercase text-muted-foreground">Pontos de melhoria</h3><p className="mt-1 whitespace-pre-wrap text-sm">{feedback.pontosMelhoria}</p></div>}</article>)}</div>}</section></div>}</CardContent>}</Card>)}</div>}
+  </div>;
 }

@@ -5,7 +5,10 @@ import {
   FileEditIcon,
   LayoutDashboardIcon,
   MessageSquareIcon,
+  NetworkIcon,
   UsersIcon,
+  FileTextIcon,
+  RefreshCcwIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -22,17 +25,20 @@ import { useAuth } from "@/hooks/useAuth"
 
 const MANAGEMENT_LINKS = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboardIcon },
+  { title: "Templates", url: "/templates", icon: FileTextIcon },
+  { title: "Ciclos", url: "/ciclos", icon: RefreshCcwIcon },
   { title: "Usuários", url: "/users", icon: UsersIcon },
+  { title: "Times", url: "/teams", icon: NetworkIcon },
   { title: "Feedbacks", url: "/feedback", icon: MessageSquareIcon },
   { title: "Relatórios", url: "/reports", icon: BarChart3Icon },
 ]
 
 const COLLABORATOR_LINKS = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboardIcon },
-  { title: "Nova avaliação", url: "/NovaAvaliacao", icon: FileEditIcon },
+  { title: "Nova avaliação", url: "/nova-avaliacao", icon: FileEditIcon },
   {
-    title: "Minhas avaliações",
-    url: "/MinhasAvaliacoes",
+    title: "Meus resultados",
+    url: "/minhas-avaliacoes",
     icon: ClipboardListIcon,
   },
 ]

@@ -24,13 +24,4 @@ export default defineConfig([
       }],
     },
   },
-  {
-    files: ['supabase/dashboard/*.js'],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        Deno: 'readonly',
-      },
-    },
-  },
 ])

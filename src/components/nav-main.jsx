@@ -18,7 +18,9 @@ export function NavMain({ items }) {
       <SidebarGroupLabel>Menu principal</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          const isActive = location.pathname.toLowerCase() === item.url.toLowerCase()
+          const isActive = item.url === '/dashboard'
+            ? location.pathname.toLowerCase() === item.url.toLowerCase()
+            : location.pathname.toLowerCase().startsWith(item.url.toLowerCase())
           const Icon = item.icon
 
           return (
